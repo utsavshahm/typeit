@@ -1,16 +1,33 @@
 import { Box, Button, Stack, Typography } from '@mui/material';
 import React, { useEffect, useRef, useState } from 'react';
 import {generate} from 'random-words'
+import { useSelector } from 'react-redux';
+import {useNavigate} from 'react-router-dom'
+import Controls from './Controls';
+import Navbar from './Navbar';
+import { useDispatch } from 'react-redux';
+import { speedGraphType } from './redux/speedAndGraph_redux/speedGraphType';
+import { testTimeType } from './redux/testTime_redux/testTimeType';
+
 
 function Type() {
   
+  const {time} = useSelector(state=>state.testTime)
+
   const [currentWordIndex, setcurrentWordIndex] = useState(0);
   const [currentWordLetterIndex, setcurrentWordLetterIndex] = useState(0);
   const textRef = useRef(null);
   const [charactersTotal, updateTypedCharacters] = useState(0);
+  const [correctlyTyped, updateCorrectlyTyped] = useState(0);
+
   const [seconds, setSeconds] = useState(60);
   const [isRunning, setIsRunning] = useState(false);
   const [speed, setSpeed] = useState(0);
+
+  const [speedAtTime, updateSpeedAtTime] = useState([]);
+
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
 
   const generateWords = () =>{
@@ -113,20 +130,25 @@ function Type() {
 
             setcurrentWordLetterIndex((prevIndex) => prevIndex + 1);
             moveCursor(e.key);
+            updateCorrectlyTyped((prevIndex)=>prevIndex+1);
             // console.log("correct key pressed", currentWordLetterIndex, e.key);
 
           } else if (e.key === ' ') {
             e.preventDefault();
 
-            setcurrentWordIndex((prevIndex) => prevIndex + 1);
-            setcurrentWordLetterIndex(0); // Reset letter index when moving to the next word
-            moveCursor(e.key, true);
-            
+            if(currentWordLetterIndex>0){
+
+              setcurrentWordIndex((prevIndex) => prevIndex + 1);
+              setcurrentWordLetterIndex(0); // Reset letter index when moving to the next word
+              moveCursor(e.key, true);
+              
+            }
           }
           else if(e.key === "Backspace"){
 
             e.preventDefault();
             handleBackspace();
+            updateCorrectlyTyped((prevIndex)=>prevIndex+1);
             moveCursor(e.key, false);
 
           }
@@ -189,37 +211,66 @@ function Type() {
         setIsRunning(false);
         clearInterval(intervalId);
         calcTypeSpeed();
+        speedAtTime.push(speed);
+        updateSpeedAtTime(speedAtTime);
+
+        dispatch({type : speedGraphType, payload : {
+          speed:speed,
+          speedArray:speedAtTime,
+          testTime : time
+        }})
+        updateSpeedAtTime([]);
+        setSpeed(0);
+        dispatch({type : testTimeType, payload : {time : 60}})
+        console.log(seconds)
+        navigate('/result')
         return;
       }
+
+      if(seconds%2==0){
+        calcTypeSpeed();
+        speedAtTime.push(speed);
+        updateSpeedAtTime(speedAtTime);
+        console.log("hy", seconds, speedAtTime)
+      }
+
       return () => {
         clearInterval(intervalId);
       };
     }, [isRunning, seconds]);
 
-    const startTime = () =>{
+    useEffect(()=>{
+      setSeconds(time);
+      setIsRunning(false);
+    }, [time])
 
-      if(seconds!=60){
+    const startTime = () =>{
+      if(seconds!=time){
         const renewText = generateWords();
         setText(renewText);
       }
 
-      setSeconds(60);
+      setSeconds(time);
       setcurrentWordIndex(0);
       setcurrentWordLetterIndex(0);
       updateTypedCharacters(0);
+      updateCorrectlyTyped(0);
+      updateSpeedAtTime([])
       setSpeed(0);
 
       setIsRunning(true);
     }
 
     const calcTypeSpeed = () =>{
-      const tSpeed = charactersTotal/5;
+      const tSpeed = (correctlyTyped/5)*(60/time);
       setSpeed(tSpeed);
       return;
     }
 
   return (
     <>
+            <Navbar/>
+            <Controls/>
 
         <Stack justifyContent={'center'} alignItems={'center'} mt={10}>
 
@@ -232,10 +283,11 @@ function Type() {
             </Box>
 
             <Stack direction={'row'} gap={3} fontSize={14} mt={5}>
-              <Button onClick={startTime} variant='contained'>Start Test</Button>
-              <h1 id='currentTime'>Time : <Typography variant='p' sx={{color:'cyan'}}>{seconds}</Typography></h1>
-              <h1 id='charactersTyped'>Total Characters : <Typography variant='p' sx={{color:'cyan'}}>{charactersTotal}</Typography></h1>
-              <h1 id='speed'>Speed : <Typography variant='p' sx={{color:'cyan'}}>{speed}</Typography></h1>
+              <Button onClick={startTime} variant='contained' sx={{backgroundColor:'aliceblue', color:'black', borderRadius:'15px', 
+              fontSize:'18px', '&:hover':{backgroundColor:'aliceblue'}}}>Start Test</Button>
+              <h1 id='currentTime'>Time : <Typography variant='p' sx={{color:'orange'}}>{seconds}</Typography></h1>
+              <h1 id='charactersTyped'>Total Characters : <Typography variant='p' sx={{color:'orange'}}>{charactersTotal}</Typography></h1>
+              <h1 id='speed'>Speed : <Typography variant='p' sx={{color:'orange'}}>{speed}</Typography></h1>
             </Stack>
 
         </Stack>
