@@ -1,13 +1,9 @@
-import React, { useState } from 'react';
-import {Box, IconButton, Stack, Tooltip, Typography} from "@mui/material"
+import React from 'react';
+import {Box, IconButton, Stack, Tooltip} from "@mui/material"
 import KeyboardIcon from '@mui/icons-material/Keyboard';
 import InfoIcon from '@mui/icons-material/Info';
-// import SettingsIcon from '@mui/icons-material/Settings';
-// import NotificationsIcon from '@mui/icons-material/Notifications';
-// import EqualizerIcon from '@mui/icons-material/Equalizer';
 import Person2OutlinedIcon from '@mui/icons-material/Person2Outlined';
-import logo from './img/typeitLogo.png'
-import Type from './Type';
+import logo from '../img/typeitLogo.png'
 import { useNavigate } from 'react-router-dom';
 
 function Navbar() {

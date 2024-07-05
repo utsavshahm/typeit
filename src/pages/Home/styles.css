@@ -1,0 +1,57 @@
+@keyframes blink {
+  0% { opacity: 0; }
+  50% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+.blinking-cursor {
+  height: 20px;
+  width: 2px;
+  background-color: white;
+  display: inline-block;
+  opacity: 0;
+  transition: all 0.05s ease-in;
+  animation: blink 1s infinite;
+}
+.text-container {
+  width: 75vw;
+   height: 135px;  /* Adjust this height to match the height of 3 lines */
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* border: 1px solid red; */
+  line-height: 45px; /* Adjust this to match your line height */
+  font-size: 20px;
+  text-align: justify;
+  word-spacing: 3px;
+  letter-spacing: 5px;
+  position: relative;
+  /* margin-top: 50px; */
+}
+
+#typeText {
+  position: absolute;
+  top: 0;
+  white-space: pre-wrap;
+  transition: all 0.15s ease-in;
+}
+
+.caps-on{
+  height: 70px;
+  justify-content: center;
+  display: flex;
+  align-items: center;
+  font-size: 1.5rem;
+  color: white;
+  background-color: orange;
+  font-weight: 700;
+  border-radius: 10px;
+  width: 170px;
+  opacity: 0;
+}
+.caps-container{
+  margin-top: 40px;
+  display: flex;
+  justify-content: center;
+}

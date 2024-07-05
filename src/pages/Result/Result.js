@@ -1,16 +1,11 @@
-import React, { useEffect, useRef } from 'react';
-import Navbar from './Navbar';
-import { Box, Grid, Stack, Typography } from '@mui/material';
-import Chartkick from "chartkick"
-import Chart from 'chart.js/auto';
+import React from 'react';
+import Navbar from "../../components/Navbar"; 
+import { Grid, Stack, Typography } from '@mui/material';
 import { LineChart,Line, XAxis, YAxis, CartesianGrid, Tooltip, Label, ResponsiveContainer } from 'recharts'
-import "chartkick/chart.js"
 import { useSelector } from 'react-redux';
 
 function Result() {
     
-    // const chartRef = useRef(null);
-
     const resultData = useSelector(state => state.speedGraph)
     const speed = resultData?.speed
     const testTime = resultData?.testTime
@@ -61,9 +56,6 @@ function Result() {
                         </Stack>
                     </Grid>
                     <Grid item xs={10} alignItems={'center'} justifyContent={'center'} >
-                        {/* <h1>Graph area</h1> */}
-                        {/* <div id="line" style={{ height: '40vh', backgroundColor:"white"}} ref={chartRef}></div> */}
-                        
 
                             <ResponsiveContainer height="95%">
                                 <LineChart data={speedArray} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
