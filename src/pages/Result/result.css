@@ -1,0 +1,18 @@
+.next-test{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: xx-large;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+    margin: 10px;
+    padding: 20px;
+    gap: 15px;
+}
+.next-test-text{
+    font-size: x-large;
+}
+.next-test:hover{
+    border: 1px solid white;
+    cursor: pointer;
+}

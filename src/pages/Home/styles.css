@@ -15,13 +15,15 @@
 }
 .text-container {
   width: 75vw;
-   height: 135px;  /* Adjust this height to match the height of 3 lines */
+   height: 135px;  
+   /* Adjust this height to match the height of 3 lines */ 
   overflow: hidden;
   display: flex;
   justify-content: center;
   align-items: center;
   /* border: 1px solid red; */
-  line-height: 45px; /* Adjust this to match your line height */
+  line-height: 45px; 
+  /* Adjust this to match your line height */
   font-size: 20px;
   text-align: justify;
   word-spacing: 3px;

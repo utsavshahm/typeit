@@ -12,7 +12,9 @@ export const useKeyHandlers = (
   updateTypedCharacters,
   updateCorrectlyTyped,
   setcurrentWordIndex,
-  setcurrentWordLetterIndex
+  setcurrentWordLetterIndex, 
+  incorrectLetters, 
+  setIncorrectLetters
 ) => {
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -64,6 +66,18 @@ export const useKeyHandlers = (
         e.key === textArray[currentWordIndex][currentWordLetterIndex] &&
         e.key != " "
       ) {
+
+        
+        if (incorrectLetters.has(`${currentWordIndex},${currentWordLetterIndex}`)) {
+          setIncorrectLetters((prevMap) => {
+            const newIncorrect = new Map(prevMap); 
+            newIncorrect.delete(
+              `${currentWordIndex},${currentWordLetterIndex}`
+            );
+
+            return newIncorrect;
+          })
+        }
         changeColor(
           true,
           false,
@@ -93,7 +107,7 @@ export const useKeyHandlers = (
       } else if (e.key === "Backspace") {
         e.preventDefault();
         handleBackspace();
-        updateCorrectlyTyped((prevIndex) => prevIndex + 1);
+        // updateCorrectlyTyped((prevIndex) => prevIndex + 1);
         moveCursor(
           e.key,
           false,
@@ -102,7 +116,8 @@ export const useKeyHandlers = (
           currentWordIndex,
           currentWordLetterIndex
         );
-      } else {
+      }
+      else {
         changeColor(
           false,
           false,
@@ -120,6 +135,16 @@ export const useKeyHandlers = (
           currentWordIndex,
           currentWordLetterIndex
         );
+
+        const key = `${currentWordIndex},${currentWordLetterIndex}`;
+
+        if (!incorrectLetters.has(key)) {
+          setIncorrectLetters((prevMap) => {
+            const newIncorrect = new Map(prevMap); 
+            newIncorrect.set(key, true);
+            return newIncorrect; 
+          })
+        }
       }
 
       updateTypedCharacters((prevTotal) => prevTotal + 1);

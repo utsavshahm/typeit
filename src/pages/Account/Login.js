@@ -1,63 +1,99 @@
-import { Button, Stack, Typography } from '@mui/material';
-import React from 'react'
-import Textbox from '../../components/Textbox';
+import { Alert, Button, Snackbar, Stack, Typography } from '@mui/material';
+import React, { useState } from 'react'
+import TextB from '../../components/TextBox/TextB';
 import LoginIcon from "@mui/icons-material/Login";
 import { useForm } from 'react-hook-form';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import './account.css'
 
 function Login(props) {
+  const navigate = useNavigate(); 
       const form = useForm();
       const { register, handleSubmit, formState } = form;
-      const { errors } = formState;
+  const { errors } = formState;
+    const defaultSnack = {
+      show: false,
+      message: "",
+      type: "",
+    };
+  const [snack, setSnack] = useState(defaultSnack);
+  
   const submitHandler = handleSubmit(async (data) => {
         
         try {
             const response = await axios.post(
-              `${process.env.REACT_APP_BACKEND_URL}/users/login`,
+              `${process.env.REACT_APP_BACKEND_URL}/api/user/login`,
               data
             );
-            console.log(response.data);
+          console.log(response.data);
+          
+          if (response.data.success) {
+            // we have logged in successfully
+            setSnack({ show: true, message: response.data.msg, type: "success" });
+
+            if (window) {
+              window.localStorage.setItem('token', response.data.token); 
+              window.localStorage.setItem('username', response.data.credentials.username);
+              setTimeout(() => {
+                navigate('/');
+              }, 3000);
+            }
+          }
+          else {
+            setSnack({
+              show: true,
+              message: response.data.msg,
+              type: "error",
+            });
+            console.log(response.data.msg); 
+          }
         } catch (error) {
           console.log(error.response)
+          setSnack({ show: true, message: error.response.data.msg, type: "error" });
         }
 
       });
   return (
     <>
-      <Stack direction={"column"} component={"form"} gap={3} onSubmit={submitHandler}>
+      <Snackbar
+        open={snack.show}
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+        autoHideDuration={1500}
+        onClose={() => setSnack(defaultSnack)}
+      >
+        <Alert severity={snack.type} sx={{ fontSize: "1.1rem", width:"100%"}}>{snack.message}</Alert>
+      </Snackbar>
+      <Stack
+        direction={"column"}
+        component={"form"}
+        gap={3}
+        onSubmit={submitHandler}
+        autoComplete="off"
+        aria-autocomplete="off"
+      >
         <Typography
-          variant="h4"
-          fontSize={19}
+          variant="h3"
+          fontSize={23}
           fontWeight={500}
           letterSpacing={2}
         >
           login
         </Typography>
 
-        <Textbox
+        <TextB
           placeholder="username"
           name={"username"}
           required={true}
           register={register}
-          errors={errors}
           msg={"Please enter valid username"}
         />
-        <Textbox
-          placeholder="email"
-          type="email"
-          name={"email"}
-          required={true}
-          register={register}
-          errors={errors}
-          msg={"Please enter valid email"}
-        />
-        <Textbox
+        <TextB
           placeholder="password"
           type="password"
           name={"password"}
           required={true}
           register={register}
-          errors={errors}
           msg={"Please enter your password!"}
         />
 

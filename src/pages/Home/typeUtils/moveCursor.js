@@ -1,3 +1,5 @@
+let totalTranslateY = 0;
+
 function moveCursor(
   ch,
   fwd,
@@ -9,8 +11,10 @@ function moveCursor(
 
     if (textRef !== null) {
         
-        const textElement = textRef.current;
+      const textElement = textRef.current;
+      // console.log("text element, ", textElement);
         const textArray = textElement.innerText.split(" ");
+      // console.log("text array, ", textArray);
           
         const updated = textArray
           .map((word, wordIndex) => {
@@ -59,17 +63,33 @@ function moveCursor(
                     `<span style="text-decoration: ${decoration}; color: ${currentSpanColor}" id="${currentSpanId}">${letter}</span>` + `<span class="blinking-cursor"></span>`
                   );
                 }
-                // Return the span for the letter and the blinking cursor if it's the current letter
+                
                 return (
                   (currentLetter ? `<span class="blinking-cursor"></span>` : "") +
                   `<span style="text-decoration: ${decoration}; color: ${currentSpanColor}" id="${currentSpanId}">${letter}</span>`
                 );
               })
-              .join(""); // Join the letters to avoid additional whitespace
+              .join("");
           })
-          .join(" "); // Join the words with a space
+          .join(" ");
       
-        textElement.innerHTML = updated;
+      textElement.innerHTML = updated;
+      
+          const cursorElement = textElement.querySelector(".blinking-cursor");
+          if (cursorElement) {
+            const cursorTop = cursorElement.offsetTop;
+
+            const linesDown = Math.floor(
+              (cursorTop - Math.abs(totalTranslateY)) / 45
+            );
+
+            console.log("Lines down:", linesDown);
+
+            if (linesDown >= 1) {
+              totalTranslateY -= 45;
+              textElement.style.transform = `translateY(${totalTranslateY}px)`;
+            }
+          }
 
 
     }

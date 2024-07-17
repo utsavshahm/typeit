@@ -1,35 +1,50 @@
-import { Box, Button, Stack, Typography, styled } from "@mui/material";
 import React, { useEffect, useRef, useState } from "react";
-import { generate } from "random-words";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import Controls from "../../components/Controls";
-import Navbar from "../../components/Navbar";
-import { useDispatch } from "react-redux";
+import { Box, Button, Stack, Typography } from "@mui/material";
+import { generate } from "random-words";
+import Controls from "../../components/Controls/Controls.js";
+import Navbar from "../../components/Navbar/Navbar.js";
 import { speedGraphType } from "../../redux/speedAndGraph_redux/speedGraphType";
 import { testTimeType } from "../../redux/testTime_redux/testTimeType";
-
+import { useKeyHandlers } from "../../hooks/useKeyHandlers.js";
+import Result from "../Result/Result.js";
 import "./styles.css";
 import changeColor from "./typeUtils/changeColor.js";
 import moveCursor from "./typeUtils/moveCursor.js";
-import { useKeyHandlers } from "../../hooks/useKeyHandlers.js";
 
-function Type() {
-  const { time } = useSelector((state) => state.testTime);
+import { generateWords } from "../../utils/words.js";
+
+function Type(props) {
+  const { isFinish } = props;
+
+  const { time } = useSelector((state) => state.testTime) || 60;
   const textRef = useRef(null);
-  const [currentWordIndex, setcurrentWordIndex] = useState(0);
-  const [currentWordLetterIndex, setcurrentWordLetterIndex] = useState(0);
+  // const cursorRef = useRef(null);
+  const [currentWordIndex, setCurrentWordIndex] = useState(0);
+  const [currentWordLetterIndex, setCurrentWordLetterIndex] = useState(0);
   const [charactersTotal, updateTypedCharacters] = useState(0);
   const [correctlyTyped, updateCorrectlyTyped] = useState(0);
+  const [incorrectLetters, setIncorrectLetters] = useState(new Map()); 
   const [seconds, setSeconds] = useState(60);
   const [isRunning, setIsRunning] = useState(false);
   const [speed, setSpeed] = useState(0);
   const [speedAtTime, updateSpeedAtTime] = useState([]);
+
+  const [isTest, setTest] = useState(false);
+  const defaultResult = {
+    speed: 0,
+    testTime: 0,
+    array: [],
+  };
+  const [result, setResult] = useState(defaultResult);
+
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const word = generate(100);
+  const word = generateWords();
   const wordArray = word.map((elem) => elem.toLowerCase());
   const [text, setText] = useState(wordArray.join(" "));
+  const lineHeight = 45;
 
   useKeyHandlers(
     textRef,
@@ -37,9 +52,11 @@ function Type() {
     currentWordLetterIndex,
     isRunning,
     updateTypedCharacters,
-    updateCorrectlyTyped, 
-    setcurrentWordIndex, 
-    setcurrentWordLetterIndex
+    updateCorrectlyTyped,
+    setCurrentWordIndex,
+    setCurrentWordLetterIndex,
+    incorrectLetters, 
+    setIncorrectLetters
   );
 
   useEffect(() => {
@@ -52,7 +69,7 @@ function Type() {
     } else if (seconds === 0) {
       setIsRunning(false);
       clearInterval(intervalId);
-      calcTypeSpeed();
+      calcTypeSpeed(time);
       speedAtTime.push(speed);
       updateSpeedAtTime(speedAtTime);
 
@@ -64,19 +81,24 @@ function Type() {
           testTime: time,
         },
       });
+      dispatch({ type: testTimeType, payload: { time: 60 } });
+
       updateSpeedAtTime([]);
       setSpeed(0);
-      dispatch({ type: testTimeType, payload: { time: 60 } });
-      console.log(seconds);
-      navigate("/result");
+      // setResult({
+      //   speed: speed,
+      //   testTime: time,
+      //   array: speedAtTime,
+      // });
+
+      isFinish(true);
       return;
     }
 
-    if (seconds % 2 == 0) {
-      calcTypeSpeed();
+    if (seconds % 2 === 0) {
+      calcTypeSpeed(time === seconds ? time : time - seconds);
       speedAtTime.push(speed);
       updateSpeedAtTime(speedAtTime);
-      console.log("hy", seconds, speedAtTime);
     }
 
     return () => {
@@ -90,100 +112,92 @@ function Type() {
   }, [time]);
 
   const startTime = () => {
-    if (seconds != time) {
-      const renewText = generateWords();
-      setText(renewText);
+    let check = false; 
+    if (seconds !== time) {
+      check = true; 
+      const renewText = generateText();
+      setText(renewText);  
     }
 
     setSeconds(time);
-    setcurrentWordIndex(0);
-    setcurrentWordLetterIndex(0);
+    setCurrentWordIndex(0);
+    setCurrentWordLetterIndex(0);
     moveCursor("", false, true, textRef, 0, 0);
     updateTypedCharacters(0);
     updateCorrectlyTyped(0);
     updateSpeedAtTime([]);
     setSpeed(0);
-
-    setIsRunning(true);
+    
+    if (!check) {
+      setIsRunning(true);
+    }
+    else {
+      setIsRunning(false);
+    }
   };
 
-  const calcTypeSpeed = () => {
-    const tSpeed = (correctlyTyped / 5) * (60 / time);
-    setSpeed(tSpeed);
+  const calcTypeSpeed = (currTime) => {
+    console.log("incorrect ", incorrectLetters.size)
+    const tSpeed = (((correctlyTyped / 5) - incorrectLetters.size) * (60 / currTime)).toFixed(2);
+    setSpeed(Math.max(tSpeed, 0));
     return;
   };
 
-  const generateWords = () => {
-    const generateWords = generate(100);
-    const words = generateWords.map((elem) => elem.toLowerCase());
+  const generateText = () => {
+    const wordArray = generateWords();
+    const words = wordArray.map((elem) => elem.toLowerCase());
     return words.join(" ");
   };
-  
-  useEffect(() => {
-    if (textRef.current) {
-      const lineHeight = 45; 
-      const currentLine = Math.floor(currentWordIndex / 18); 
-      textRef.current.style.transform = `translateY(-${
-        currentLine * lineHeight}px)`;
-    }
-  }, [currentWordIndex]);
 
   return (
     <>
-      <Navbar />
-      <Controls />
+          <Controls />
 
-      <div className="caps-container">
-        <div className="caps-on" id="caps">
-          Caps Lock
-        </div>
-      </div>
+          <div className="caps-container">
+            <div className="caps-on" id="caps">
+              Caps Lock
+            </div>
+          </div>
 
-      <Stack justifyContent={"center"} alignItems={"center"} mt={10}>
-        <Box
-          className="text-container"
-        >
-          <p id="typeText" ref={textRef}>
-            {text}
-          </p>
+          <Stack justifyContent={"center"} alignItems={"center"} mt={10}>
+            <Box className="text-container">
+                <p ref={textRef} id="typeText">{text}</p>
+            </Box>
 
-          {/* <h1 id='typespeed'>0</h1><br /> */}
-        </Box>
-
-        <Stack direction={"row"} gap={3} fontSize={14} mt={5}>
-          <Button
-            onClick={startTime}
-            variant="contained"
-            sx={{
-              backgroundColor: "aliceblue",
-              color: "black",
-              borderRadius: "15px",
-              fontSize: "18px",
-              "&:hover": { backgroundColor: "aliceblue" },
-            }}
-          >
-            Start Test
-          </Button>
-          <h1 id="currentTime">
-            Time :{" "}
-            <Typography variant="p" sx={{ color: "orange" }}>
-              {seconds}
-            </Typography>
-          </h1>
-          <h1 id="charactersTyped">
-            Total Characters :{" "}
-            <Typography variant="p" sx={{ color: "orange" }}>
-              {charactersTotal}
-            </Typography>
-          </h1>
-          <h1 id="speed">
-            Speed :{" "}
-            <Typography variant="p" sx={{ color: "orange" }}>
-              {speed}
-            </Typography>
-          </h1>
-        </Stack>
-      </Stack>
+            <Stack direction={"row"} gap={3} fontSize={14} mt={5}>
+              <Button
+                onClick={startTime}
+                variant="contained"
+                sx={{
+                  backgroundColor: "aliceblue",
+                  color: "black",
+                  borderRadius: "15px",
+                  fontSize: "18px",
+                  "&:hover": { backgroundColor: "aliceblue" },
+                }}
+              >
+                Start Test
+              </Button>
+              <h1 id="currentTime">
+                Time :{" "}
+                <Typography variant="p" sx={{ color: "orange" }}>
+                  {seconds}
+                </Typography>
+              </h1>
+              <h1 id="charactersTyped">
+                Total Characters :{" "}
+                <Typography variant="p" sx={{ color: "orange" }}>
+                  {charactersTotal}
+                </Typography>
+              </h1>
+              <h1 id="speed">
+                Speed :{" "}
+                <Typography variant="p" sx={{ color: "orange" }}>
+                  {speed}
+                </Typography>
+              </h1>
+            </Stack>
+          </Stack>
     </>
   );
 }
