@@ -43,7 +43,7 @@ export const useKeyHandlers = (
         return; // Prevent further handling for Caps Lock key
       }
 
-      if (e.shiftKey || e.altKey || e.ctrlKey) {
+      if ((e.shiftKey && e.key==='Shift') || e.altKey || e.ctrlKey || !isRunning) {
         e.preventDefault();
         return;
       }
@@ -64,7 +64,7 @@ export const useKeyHandlers = (
         moveCursor("", false, true, textRef, flag ? currentWordIndex + 1 : currentWordIndex , 0);
       } else if (
         e.key === textArray[currentWordIndex][currentWordLetterIndex] &&
-        e.key != " "
+        e.key !== " "
       ) {
 
         
@@ -187,5 +187,5 @@ export const useKeyHandlers = (
       document.removeEventListener("keydown", handleKeyDown);
       document.removeEventListener("keyup", handleKeyUp);
     };
-  }, [textRef, currentWordIndex, currentWordLetterIndex, isRunning]);
+  }, [textRef, currentWordIndex, currentWordLetterIndex, isRunning, incorrectLetters, setIncorrectLetters, setcurrentWordIndex, setcurrentWordLetterIndex, updateCorrectlyTyped, updateTypedCharacters]);
 };

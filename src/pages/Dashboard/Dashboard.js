@@ -305,7 +305,7 @@ const Dashboard = () => {
                     </TableBody>
                   </Table>
                 </TableContainer>
-                {data.recentTests.length==0 ? <TakeOneTest/> : <Box/>}
+                {data.recentTests.length===0 ? <TakeOneTest/> : <Box/>}
               </Paper>
             </Grid>
           </Grid>

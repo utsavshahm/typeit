@@ -5,7 +5,8 @@ const speedGraphAction = {
     payload:{
         speed : 0,
         speedArray : [],
-        testTime : 0,
+        testTime: 0,
+        accuracy : 0
     }
 }
 

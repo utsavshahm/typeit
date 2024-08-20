@@ -72,4 +72,41 @@ const generateWords = () => {
     return wordArray;
 };
 
-export { generateWords };
+
+const generateWordsWithPunctuation = () => {
+    const punc = [",", "'", "!", ".", ";", "?"];
+    const wordArray = [];
+
+    while (wordArray.length < 200) {
+        const puncProb = Math.random();
+        const upperProb = Math.random();
+        const customIndex = Math.floor(Math.random() * words.length);
+
+        let word = words[customIndex];
+        let letters = word.split('');
+
+        if (upperProb > 0.5) {
+            letters[0] = letters[0].toUpperCase();
+        }
+
+        if (puncProb > 0.7) {
+            const puncIndex = Math.floor(Math.random() * punc.length);
+            const puncChar = punc[puncIndex];
+
+            if (puncChar === "'") {
+                letters[0] = `'${letters[0]}`;
+                letters[letters.length - 1] = `${letters[letters.length - 1]}'`;
+            } else {
+                letters[letters.length - 1] += puncChar;
+            }
+        }
+
+        word = letters.join('');
+        wordArray.push(word);
+    }
+
+    return wordArray;
+}
+
+
+export { generateWords, generateWordsWithPunctuation };

@@ -2,6 +2,7 @@ import { Box, IconButton, Stack } from "@mui/material";
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { testTimeType } from "../../redux/testTime_redux/testTimeType";
+import { punctuationType } from "../../redux/testTime_redux/punctuationType";
 
 import "./controls.css";
 
@@ -26,8 +27,12 @@ function Controls() {
 
     if (punctuation) {
       setPunctuation(false);
+      dispatch({ type: punctuationType, payload: { punctuation: false } });
+
     } else {
       setPunctuation(true);
+      dispatch({ type: punctuationType, payload: { punctuation: true } });
+
     }
   };
   return (

@@ -11,7 +11,6 @@ function Login(props) {
   const navigate = useNavigate(); 
       const form = useForm();
       const { register, handleSubmit, formState } = form;
-  const { errors } = formState;
     const defaultSnack = {
       show: false,
       message: "",
@@ -70,7 +69,6 @@ function Login(props) {
         gap={3}
         onSubmit={submitHandler}
         autoComplete="off"
-        aria-autocomplete="off"
       >
         <Typography
           variant="h3"

@@ -5,6 +5,7 @@ import Register from "./Register";
 import Login from "./Login";
 
 import './account.css'
+import Footer from "../../components/Footer/Footer";
 
 function AccountPage() {
 
@@ -22,7 +23,7 @@ function AccountPage() {
 
   const changeForm = () => {
     
-    if (signIn == 0) {
+    if (signIn === 0) {
       setSignIn(1);
       setTextState(signText[1]);
     }
@@ -41,13 +42,15 @@ function AccountPage() {
         // border={"1px solid red"}
         height={"70vh"}
       >
-        {signIn==0 ? <Login/> : <Register/>}
+        {signIn===0 ? <Login/> : <Register/>}
         {/* <Login /> */}
         <p variant="body1" className="sign-up-span">
           {textState.text}
           <span className="sign-up" onClick={changeForm}>{textState.type}</span>
         </p>
       </Stack>
+
+      <Footer/>
     </div>
   );
 }

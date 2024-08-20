@@ -1,0 +1,9 @@
+.link-portfolio{
+    color: white;
+    transition: all 0.2s ease;
+    margin-left: 5px;
+}
+
+.link-portfolio:hover{
+    color: orange;
+}

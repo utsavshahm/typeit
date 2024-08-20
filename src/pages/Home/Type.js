@@ -2,25 +2,22 @@ import React, { useEffect, useRef, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { Box, Button, Stack, Typography } from "@mui/material";
-import { generate } from "random-words";
 import Controls from "../../components/Controls/Controls.js";
-import Navbar from "../../components/Navbar/Navbar.js";
 import { speedGraphType } from "../../redux/speedAndGraph_redux/speedGraphType";
-import { testTimeType } from "../../redux/testTime_redux/testTimeType";
 import { useKeyHandlers } from "../../hooks/useKeyHandlers.js";
-import Result from "../Result/Result.js";
 import "./styles.css";
-import changeColor from "./typeUtils/changeColor.js";
 import moveCursor from "./typeUtils/moveCursor.js";
 
-import { generateWords } from "../../utils/words.js";
+import { generateWords, generateWordsWithPunctuation } from "../../utils/words.js";
+import axios from "axios";
+import { response } from "express";
 
 function Type(props) {
-  const { isFinish } = props;
 
   const { time } = useSelector((state) => state.testTime) || 60;
+  const { punctuation } = useSelector((state) => state.punctuationType) || false;
+
   const textRef = useRef(null);
-  // const cursorRef = useRef(null);
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [currentWordLetterIndex, setCurrentWordLetterIndex] = useState(0);
   const [charactersTotal, updateTypedCharacters] = useState(0);
@@ -31,20 +28,17 @@ function Type(props) {
   const [speed, setSpeed] = useState(0);
   const [speedAtTime, updateSpeedAtTime] = useState([]);
 
-  const [isTest, setTest] = useState(false);
-  const defaultResult = {
-    speed: 0,
-    testTime: 0,
-    array: [],
-  };
-  const [result, setResult] = useState(defaultResult);
+  const [isPunctuation, setPunctuation] = useState(false);
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const word = generateWords();
-  const wordArray = word.map((elem) => elem.toLowerCase());
-  const [text, setText] = useState(wordArray.join(" "));
-  const lineHeight = 45;
+
+  let word = punctuation ? generateWordsWithPunctuation() : generateWords();
+
+  // console.log(time, punctuation)
+
+
+  const [text, setText] = useState(word.join(" "));
 
   useKeyHandlers(
     textRef,
@@ -72,26 +66,43 @@ function Type(props) {
       calcTypeSpeed(time);
       speedAtTime.push(speed);
       updateSpeedAtTime(speedAtTime);
-
+      
+      let acc = calcAccuracy();
       dispatch({
         type: speedGraphType,
         payload: {
           speed: speed,
           speedArray: speedAtTime,
           testTime: time,
+          accuracy : acc
         },
       });
-      dispatch({ type: testTimeType, payload: { time: 60 } });
 
       updateSpeedAtTime([]);
       setSpeed(0);
-      // setResult({
-      //   speed: speed,
-      //   testTime: time,
-      //   array: speedAtTime,
-      // });
+      
+      localStorage.setItem("testTaken", "True")
+      
 
-      isFinish(true);
+      // submit data to backend
+
+      if (localStorage.getItem("token")) {
+        const date = new Date();
+
+        const testData = {
+          date : date,
+          testType: "time" + (punctuation ? ` punctuation` : ''),
+          testTime: time,
+          wpm: speed, 
+          accuracy : acc,
+        }
+        const data = {
+          testData: testData
+        }
+        submitTestData(data)
+      }
+
+      navigate('/result')
       return;
     }
 
@@ -104,22 +115,27 @@ function Type(props) {
     return () => {
       clearInterval(intervalId);
     };
-  }, [isRunning, seconds]);
+  }, [isRunning, seconds, calcAccuracy, calcTypeSpeed, dispatch, navigate, punctuation, speed, speedAtTime, time]);
 
   useEffect(() => {
-    setSeconds(time);
     setIsRunning(false);
-  }, [time]);
+
+    const renewText = generateText(punctuation);
+    setText(renewText);
+
+    setSeconds(time);
+  }, [punctuation, time])
 
   const startTime = () => {
     let check = false; 
     if (seconds !== time) {
       check = true; 
-      const renewText = generateText();
+      const renewText = generateText(isPunctuation);
       setText(renewText);  
     }
 
     setSeconds(time);
+    console.log(charactersTotal)
     setCurrentWordIndex(0);
     setCurrentWordLetterIndex(0);
     moveCursor("", false, true, textRef, 0, 0);
@@ -137,18 +153,50 @@ function Type(props) {
   };
 
   const calcTypeSpeed = (currTime) => {
-    console.log("incorrect ", incorrectLetters.size)
-    const tSpeed = (((correctlyTyped / 5) - incorrectLetters.size) * (60 / currTime)).toFixed(2);
+    const tSpeed = (((correctlyTyped  - incorrectLetters.size)/5) * (60 / currTime)).toFixed(2);
     setSpeed(Math.max(tSpeed, 0));
     return;
   };
 
-  const generateText = () => {
-    const wordArray = generateWords();
-    const words = wordArray.map((elem) => elem.toLowerCase());
-    return words.join(" ");
+  const calcAccuracy = () => {
+    const accuracy = (((correctlyTyped * 1.0)/(correctlyTyped + incorrectLetters.size) ) * 100).toFixed(2);
+
+    return accuracy;
+  }
+  const generateText = (punc) => {
+    let f; 
+    if (punc) {
+      f = generateWordsWithPunctuation; 
+    }
+    else {
+      f = generateWords;
+    }
+    const wordArray = f();
+    return wordArray.join(" ");
   };
 
+
+
+  // send data to backend
+
+  const submitTestData = async (data) => {
+    try {
+
+      
+      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/user/test`,
+        data,
+        {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        }
+      )
+      
+
+    } catch (error) {
+      console.log(error)
+    }
+  }
   return (
     <>
           <Controls />
@@ -164,7 +212,7 @@ function Type(props) {
                 <p ref={textRef} id="typeText">{text}</p>
             </Box>
 
-            <Stack direction={"row"} gap={3} fontSize={14} mt={5}>
+            <Stack direction={"row"} gap={3} fontSize={14} mt={10}>
               <Button
                 onClick={startTime}
                 variant="contained"
@@ -184,12 +232,12 @@ function Type(props) {
                   {seconds}
                 </Typography>
               </h1>
-              <h1 id="charactersTyped">
+              {/* <h1 id="charactersTyped">
                 Total Characters :{" "}
                 <Typography variant="p" sx={{ color: "orange" }}>
                   {charactersTotal}
                 </Typography>
-              </h1>
+              </h1> */}
               <h1 id="speed">
                 Speed :{" "}
                 <Typography variant="p" sx={{ color: "orange" }}>

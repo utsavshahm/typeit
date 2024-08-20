@@ -1,19 +1,23 @@
-import React, { useState } from 'react'
+import React, { useEffect } from 'react'
 import Type from './Type'
-import Result from '../Result/Result'
 import Navbar from '../../components/Navbar/Navbar';
+import Footer from '../../components/Footer/Footer';
 
 function Home() {
 
-    const [result, showResult] = useState(false); 
-
+  useEffect(() => {
+    localStorage.removeItem("testTaken");
+  })
   return (
       <>
           <Navbar/>
-          {result ? <Result /> : <Type isFinish={showResult}  />}
+          <Type />
+
+          <Footer/>
+
       
     </>
   )
-}
+} 
 
 export default Home

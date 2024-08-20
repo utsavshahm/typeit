@@ -8,7 +8,8 @@ const speedGraphReducer = (state = speedGraphAction, action) =>{
                 ...state,
                 speed : action.payload.speed,
                 testTime : action.payload.testTime,
-                speedArray : action.payload.speedArray
+                speedArray: action.payload.speedArray,
+                accuracy : action.payload.accuracy,
             }
         
         default:

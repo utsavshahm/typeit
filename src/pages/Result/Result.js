@@ -1,29 +1,45 @@
-import React from 'react';
-import Navbar from "../../components/Navbar/Navbar"; 
+import React, { useEffect } from 'react';
 import { Grid, Stack, Typography } from '@mui/material';
 import { LineChart,Line, XAxis, YAxis, CartesianGrid, Tooltip, Label, ResponsiveContainer } from 'recharts'
 import { useSelector } from 'react-redux';
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 
 import './result.css'
+import { useNavigate } from 'react-router-dom';
 
 function Result(props) {
-    
-    const resultData = useSelector(state => state.speedGraph)
-    const speed = resultData?.speed
-    const testTime = resultData?.testTime
+
+  
+  const navigate = useNavigate(); 
+  // if (!localStorage.getItem("testTaken")) {
+  //   navigate('/')
+  //   // return;
+  // }
+
+  useEffect(() => {
+    // console.log("hello");
+    if (!localStorage.getItem("testTaken")) {
+        navigate('/')
+
+      }
+    }, [navigate])
+
+  const resultData = useSelector(state => state.speedGraph);
+  const speed = resultData?.speed;
+  const testTime = resultData?.testTime;
+  const accuracy = resultData?.accuracy;
   const array = resultData?.speedArray
   
     // const {speed, testTime, array} = props.result
 
-    console.log(array);
+    // console.log(array);
     let i = -2
     const speedArray = array.map((value)=>{
         i+=2
         return {time : i, wpm : value};
     })
 
-    console.log(speedArray)
+    // console.log(speedArray)
 
     const CustomTooltip = ({ active, payload, label }) => {
         if (active && payload && payload.length) {
@@ -61,8 +77,8 @@ function Result(props) {
           height={"45vh"}
           width={"65vw"}
         >
-          <Grid item xs={2}>
-            <Stack justifyContent={"center"} mt={2} ml={2}>
+          <Grid item xs={12} md ={2}>
+            <Stack justifyContent={"center"} mt={2} ml={2} >
               <Typography variant="p" fontSize={"24px"}>
                 wpm
               </Typography>
@@ -85,7 +101,7 @@ function Result(props) {
                 padding={0}
                 margin={0}
               >
-                90%
+                {accuracy}
               </Typography>
 
               <Typography variant="p" fontSize={"20px"}>
@@ -99,7 +115,7 @@ function Result(props) {
               </Typography>
             </Stack>
           </Grid>
-          <Grid item xs={10} alignItems={"center"} justifyContent={"center"}>
+          <Grid item xs={12} md={10} alignItems={"center"} justifyContent={"center"}>
             <ResponsiveContainer height="95%">
               <LineChart
                 data={speedArray}
@@ -130,7 +146,9 @@ function Result(props) {
           </Grid>
         </Grid>
         <div className="next-test">
-          <span className="next-test-text">New Test</span>{" "}
+          <span className="next-test-text" onClick={() => {
+            window.location.href = '/'
+          }}>New Test</span>{" "}
           <ArrowForwardIosIcon />
         </div>
       </Stack>

@@ -4,7 +4,7 @@ import KeyboardIcon from '@mui/icons-material/Keyboard';
 import InfoIcon from '@mui/icons-material/Info';
 import Person2OutlinedIcon from '@mui/icons-material/Person2Outlined';
 import logo from '../../img/typeitLogo.png'
-import { Router, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import './navbar.css'
 import { Logout } from '@mui/icons-material';

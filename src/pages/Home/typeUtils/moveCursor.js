@@ -22,7 +22,7 @@ function moveCursor(
               .split("")
               .map((letter, letterIndex) => {
 
-                console.log("key pressed ", ch)
+                // console.log("key pressed ", ch)
                 let currword, currletter;
       
                 if (start) {
@@ -54,9 +54,9 @@ function moveCursor(
       
                 const decoration = currentLetter ? "underline" : "none";
                 if (
-                  currletter == word.length &&
-                  wordIndex == currentWordIndex &&
-                  letterIndex==currentWordLetterIndex
+                  currletter === word.length &&
+                  wordIndex === currentWordIndex &&
+                  letterIndex===currentWordLetterIndex
                 ) {
                   return (
                     
@@ -83,7 +83,7 @@ function moveCursor(
               (cursorTop - Math.abs(totalTranslateY)) / 45
             );
 
-            console.log("Lines down:", linesDown);
+            // console.log("Lines down:", linesDown);
 
             if (linesDown >= 1) {
               totalTranslateY -= 45;
