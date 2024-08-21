@@ -74,20 +74,31 @@ function Type(props) {
       setIsRunning(false);
     }
   };
-
-
-  const calcTypeSpeed = useCallback((currTime) => {
+  const calcTypeSpeed = (currTime) => {
     const tSpeed = (((correctlyTyped - incorrectLetters.size) / 5) * (60 / currTime)).toFixed(2);
     setSpeed(Math.max(tSpeed, 0));
-  }, [correctlyTyped, incorrectLetters.size]);
+  }
 
 
 
-  const calcAccuracy = useCallback(() => {
+  const calcAccuracy = () => {
     const accuracy = (((correctlyTyped * 1.0) / (correctlyTyped + incorrectLetters.size)) * 100).toFixed(2);
 
     return accuracy;
-  }, [correctlyTyped, incorrectLetters.size])
+  }
+
+  // const calcTypeSpeed = useCallback((currTime) => {
+  //   const tSpeed = (((correctlyTyped - incorrectLetters.size) / 5) * (60 / currTime)).toFixed(2);
+  //   setSpeed(Math.max(tSpeed, 0));
+  // }, [correctlyTyped, incorrectLetters.size]);
+
+
+
+  // const calcAccuracy = useCallback(() => {
+  //   const accuracy = (((correctlyTyped * 1.0) / (correctlyTyped + incorrectLetters.size)) * 100).toFixed(2);
+
+  //   return accuracy;
+  // }, [correctlyTyped, incorrectLetters.size])
   const generateText = (punc) => {
     let f;
     if (punc) {
@@ -187,7 +198,7 @@ function Type(props) {
     return () => {
       clearInterval(intervalId);
     };
-  }, [isRunning, seconds, calcAccuracy, calcTypeSpeed, dispatch, navigate, punctuation, speed, speedAtTime, time]);
+  }, [isRunning, seconds]);
 
   useEffect(() => {
     setIsRunning(false);
