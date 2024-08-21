@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { Box, Button, Stack, Typography } from "@mui/material";
@@ -10,7 +10,6 @@ import moveCursor from "./typeUtils/moveCursor.js";
 
 import { generateWords, generateWordsWithPunctuation } from "../../utils/words.js";
 import axios from "axios";
-import { response } from "express";
 
 function Type(props) {
 
@@ -27,8 +26,6 @@ function Type(props) {
   const [isRunning, setIsRunning] = useState(false);
   const [speed, setSpeed] = useState(0);
   const [speedAtTime, updateSpeedAtTime] = useState([]);
-
-  const [isPunctuation, setPunctuation] = useState(false);
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -52,7 +49,82 @@ function Type(props) {
     incorrectLetters, 
     setIncorrectLetters
   );
+  const startTime = () => {
+    let check = false;
+    if (seconds !== time) {
+      check = true;
+      const renewText = generateText(punctuation);
+      setText(renewText);
+    }
 
+    setSeconds(time);
+    console.log(charactersTotal)
+    setCurrentWordIndex(0);
+    setCurrentWordLetterIndex(0);
+    moveCursor("", false, true, textRef, 0, 0);
+    updateTypedCharacters(0);
+    updateCorrectlyTyped(0);
+    updateSpeedAtTime([]);
+    setSpeed(0);
+
+    if (!check) {
+      setIsRunning(true);
+    }
+    else {
+      setIsRunning(false);
+    }
+  };
+
+
+  const calcTypeSpeed = useCallback((currTime) => {
+    const tSpeed = (((correctlyTyped - incorrectLetters.size) / 5) * (60 / currTime)).toFixed(2);
+    setSpeed(Math.max(tSpeed, 0));
+  }, [correctlyTyped, incorrectLetters.size]);
+
+
+
+  const calcAccuracy = useCallback(() => {
+    const accuracy = (((correctlyTyped * 1.0) / (correctlyTyped + incorrectLetters.size)) * 100).toFixed(2);
+
+    return accuracy;
+  }, [correctlyTyped, incorrectLetters.size])
+  const generateText = (punc) => {
+    let f;
+    if (punc) {
+      f = generateWordsWithPunctuation;
+    }
+    else {
+      f = generateWords;
+    }
+    const wordArray = f();
+    return wordArray.join(" ");
+  };
+
+
+
+  // send data to backend
+
+  const submitTestData = async (data) => {
+    try {
+
+
+      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/user/test`,
+        data,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      )
+
+      if (response.data.status === false) {
+        console.log()
+      }
+
+    } catch (error) {
+      console.log(error)
+    }
+  }
   useEffect(() => {
     let intervalId;
 
@@ -126,77 +198,6 @@ function Type(props) {
     setSeconds(time);
   }, [punctuation, time])
 
-  const startTime = () => {
-    let check = false; 
-    if (seconds !== time) {
-      check = true; 
-      const renewText = generateText(isPunctuation);
-      setText(renewText);  
-    }
-
-    setSeconds(time);
-    console.log(charactersTotal)
-    setCurrentWordIndex(0);
-    setCurrentWordLetterIndex(0);
-    moveCursor("", false, true, textRef, 0, 0);
-    updateTypedCharacters(0);
-    updateCorrectlyTyped(0);
-    updateSpeedAtTime([]);
-    setSpeed(0);
-    
-    if (!check) {
-      setIsRunning(true);
-    }
-    else {
-      setIsRunning(false);
-    }
-  };
-
-  const calcTypeSpeed = (currTime) => {
-    const tSpeed = (((correctlyTyped  - incorrectLetters.size)/5) * (60 / currTime)).toFixed(2);
-    setSpeed(Math.max(tSpeed, 0));
-    return;
-  };
-
-  const calcAccuracy = () => {
-    const accuracy = (((correctlyTyped * 1.0)/(correctlyTyped + incorrectLetters.size) ) * 100).toFixed(2);
-
-    return accuracy;
-  }
-  const generateText = (punc) => {
-    let f; 
-    if (punc) {
-      f = generateWordsWithPunctuation; 
-    }
-    else {
-      f = generateWords;
-    }
-    const wordArray = f();
-    return wordArray.join(" ");
-  };
-
-
-
-  // send data to backend
-
-  const submitTestData = async (data) => {
-    try {
-
-      
-      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/user/test`,
-        data,
-        {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-        }
-      )
-      
-
-    } catch (error) {
-      console.log(error)
-    }
-  }
   return (
     <>
           <Controls />

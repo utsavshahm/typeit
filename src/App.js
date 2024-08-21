@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
 import ShowResult from "./pages/Result/ShowResult";
 function App() {
 
+  const [result, isResult] = useState(false)
   useEffect(() => {
     if (!localStorage.getItem("testTaken")) {
       isResult(true);
