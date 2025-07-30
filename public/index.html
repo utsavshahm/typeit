@@ -23,18 +23,23 @@
         margin: 0;
         box-sizing: border-box;
       }
-      ::selection{
-        background-color: orange;
-        color: white;
+      :root {
+        --bg-color: rgba(0, 0, 0);
+        --text-color: rgba(255, 255, 255, 0.71);
+        --font-family: 'Courier New', Courier, monospace;
+        --selection-bg : orange; 
+        --selection-color : white;
       }
-      body{
-        /* font-family: 'Roboto Slab', serif; */
-        /* font-family: 'Rubik', sans-serif; */
-        font-family:'Courier New', Courier, monospace;
-        background-color: rgba(0, 0, 0, 0.852);
-        color: rgba(255, 255, 255, 0.71);
+      ::selection{
+        background-color: var(--selection-bg);
+        color: var(--selection-color);
+      }
+
+      body {
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        font-family: var(--font-family);
         font-weight: 100;
-        
       }
 
     </style>

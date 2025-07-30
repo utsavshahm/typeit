@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 import Type from './Type'
-import Navbar from '../../components/Navbar/Navbar';
-import Footer from '../../components/Footer/Footer';
+import { Box } from '@mui/material';
+import Controls from '../../components/Controls/Controls';
 
 function Home() {
 
@@ -10,11 +10,17 @@ function Home() {
   })
   return (
       <>
-          <Navbar/>
-          <Type />
-
-          <Footer/>
-
+        <Box
+          display="flex"
+          flexDirection="column"
+          minHeight="100vh"
+          sx={{ overflowX: 'hidden' }}
+        >
+          <Controls />
+          <Box flex={1} display="flex" justifyContent="center" alignItems="center" mb={10}>
+            <Type />
+          </Box>
+        </Box>
       
     </>
   )

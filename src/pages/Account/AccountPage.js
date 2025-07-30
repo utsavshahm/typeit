@@ -1,11 +1,9 @@
 import React, { useState } from "react";
-import Navbar from "../../components/Navbar/Navbar";
 import { Stack } from "@mui/material";
 import Register from "./Register";
 import Login from "./Login";
 
 import './account.css'
-import Footer from "../../components/Footer/Footer";
 
 function AccountPage() {
 
@@ -34,23 +32,19 @@ function AccountPage() {
   }
   return (
     <div>
-      <Navbar />
 
       <Stack
         justifyContent={"center"}
         alignItems={"center"}
-        // border={"1px solid red"}
         height={"70vh"}
       >
         {signIn===0 ? <Login/> : <Register/>}
-        {/* <Login /> */}
         <p variant="body1" className="sign-up-span">
           {textState.text}
           <span className="sign-up" onClick={changeForm}>{textState.type}</span>
         </p>
       </Stack>
 
-      <Footer/>
     </div>
   );
 }

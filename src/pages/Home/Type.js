@@ -1,54 +1,54 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { Box, Button, Stack, Typography } from "@mui/material";
-import Controls from "../../components/Controls/Controls.js";
 import { speedGraphType } from "../../redux/speedAndGraph_redux/speedGraphType";
 import { useKeyHandlers } from "../../hooks/useKeyHandlers.js";
 import "./styles.css";
-import moveCursor from "./typeUtils/moveCursor.js";
 
 import { generateWords, generateWordsWithPunctuation } from "../../utils/words.js";
 import axios from "axios";
+
+import TypingText from "./TypingText.js";
 
 function Type(props) {
 
   const { time } = useSelector((state) => state.testTime) || 60;
   const { punctuation } = useSelector((state) => state.punctuationType) || false;
 
-  const textRef = useRef(null);
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [currentWordLetterIndex, setCurrentWordLetterIndex] = useState(0);
-  const [charactersTotal, updateTypedCharacters] = useState(0);
-  const [correctlyTyped, updateCorrectlyTyped] = useState(0);
   const [incorrectLetters, setIncorrectLetters] = useState(new Map()); 
+  const [correctLetters, setCorrectLetters] = useState(new Map()); 
   const [seconds, setSeconds] = useState(60);
   const [isRunning, setIsRunning] = useState(false);
   const [speed, setSpeed] = useState(0);
   const [speedAtTime, updateSpeedAtTime] = useState([]);
+
+  const [translateY, setTranslateY] = useState(0);
+
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   let word = punctuation ? generateWordsWithPunctuation() : generateWords();
 
-  // console.log(time, punctuation)
-
 
   const [text, setText] = useState(word.join(" "));
 
   useKeyHandlers(
-    textRef,
-    currentWordIndex,
-    currentWordLetterIndex,
-    isRunning,
-    updateTypedCharacters,
-    updateCorrectlyTyped,
-    setCurrentWordIndex,
-    setCurrentWordLetterIndex,
+    text,
+    isRunning, 
+    currentWordIndex, 
+    currentWordLetterIndex, 
+    setCurrentWordIndex, 
+    setCurrentWordLetterIndex, 
     incorrectLetters, 
-    setIncorrectLetters
-  );
+    setIncorrectLetters, 
+    correctLetters, 
+    setCorrectLetters
+  ); 
+
   const startTime = () => {
     let check = false;
     if (seconds !== time) {
@@ -58,12 +58,8 @@ function Type(props) {
     }
 
     setSeconds(time);
-    console.log(charactersTotal)
     setCurrentWordIndex(0);
     setCurrentWordLetterIndex(0);
-    moveCursor("", false, true, textRef, 0, 0);
-    updateTypedCharacters(0);
-    updateCorrectlyTyped(0);
     updateSpeedAtTime([]);
     setSpeed(0);
 
@@ -75,30 +71,18 @@ function Type(props) {
     }
   };
   const calcTypeSpeed = (currTime) => {
-    const tSpeed = (((correctlyTyped - incorrectLetters.size) / 5) * (60 / currTime)).toFixed(2);
+    const tSpeed = (((correctLetters.size - incorrectLetters.size) / 5) * (60 / currTime)).toFixed(2);
     setSpeed(Math.max(tSpeed, 0));
   }
 
 
 
   const calcAccuracy = () => {
-    const accuracy = (((correctlyTyped * 1.0) / (correctlyTyped + incorrectLetters.size)) * 100).toFixed(2);
+    const accuracy = (((correctLetters.size * 1.0) / (correctLetters.size + incorrectLetters.size)) * 100).toFixed(2);
 
     return accuracy;
   }
 
-  // const calcTypeSpeed = useCallback((currTime) => {
-  //   const tSpeed = (((correctlyTyped - incorrectLetters.size) / 5) * (60 / currTime)).toFixed(2);
-  //   setSpeed(Math.max(tSpeed, 0));
-  // }, [correctlyTyped, incorrectLetters.size]);
-
-
-
-  // const calcAccuracy = useCallback(() => {
-  //   const accuracy = (((correctlyTyped * 1.0) / (correctlyTyped + incorrectLetters.size)) * 100).toFixed(2);
-
-  //   return accuracy;
-  // }, [correctlyTyped, incorrectLetters.size])
   const generateText = (punc) => {
     let f;
     if (punc) {
@@ -211,7 +195,16 @@ function Type(props) {
 
   return (
     <>
-          <Controls />
+
+        <div style={{
+          width : "85vw", 
+          display : "flex", 
+          flexDirection : "column", 
+          height : "100%", 
+          paddingBottom : "20px"
+
+        }}>
+
 
           <div className="caps-container">
             <div className="caps-on" id="caps">
@@ -221,7 +214,15 @@ function Type(props) {
 
           <Stack justifyContent={"center"} alignItems={"center"} mt={10}>
             <Box className="text-container">
-                <p ref={textRef} id="typeText">{text}</p>
+                <TypingText 
+                  text={text} 
+                  currentWordIndex={currentWordIndex} 
+                  currentLetterIndex={currentWordLetterIndex} 
+                  incorrectLetters={incorrectLetters}
+                  correctLetters={correctLetters}
+                  translateY={translateY}
+                  setTranslateY={setTranslateY}
+                />
             </Box>
 
             <Stack direction={"row"} gap={3} fontSize={14} mt={10}>
@@ -244,12 +245,6 @@ function Type(props) {
                   {seconds}
                 </Typography>
               </h1>
-              {/* <h1 id="charactersTyped">
-                Total Characters :{" "}
-                <Typography variant="p" sx={{ color: "orange" }}>
-                  {charactersTotal}
-                </Typography>
-              </h1> */}
               <h1 id="speed">
                 Speed :{" "}
                 <Typography variant="p" sx={{ color: "orange" }}>
@@ -258,6 +253,9 @@ function Type(props) {
               </h1>
             </Stack>
           </Stack>
+
+        </div>
+        
     </>
   );
 }

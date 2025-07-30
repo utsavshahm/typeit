@@ -64,86 +64,87 @@ function Result(props) {
       };
   return (
     <div>
-      {/* <Navbar /> */}
 
       <Stack
         direction={"column"}
         justifyContent={"center"}
         alignItems={"center"}
+        sx={{
+          // border : "1px solid red"
+        }}
       >
         <Grid
           container
-          // sx={{ border: "2px solid red" }}
-          height={"45vh"}
-          width={"65vw"}
+          spacing={2}
+          sx={{
+            width: { xs: "90vw", md: "75vw" },
+            maxWidth : "100vw",
+            padding: { xs: 2, md: 0 },
+            minHeight: { md: "300px" }, // prevents collapse
+            height : "45vh",
+            flexWrap: "wrap",
+          }}
         >
-          <Grid item xs={12} md ={2}>
-            <Stack justifyContent={"center"} mt={2} ml={2} >
-              <Typography variant="p" fontSize={"24px"}>
-                wpm
-              </Typography>
-              <Typography
-                variant="p"
-                fontSize={"48px"}
-                fontWeight={800}
-                padding={0}
-                margin={0}
-              >
-                {speed}
-              </Typography>
-              <Typography variant="p" fontSize={"24px"}>
-                acc
-              </Typography>
-              <Typography
-                variant="p"
-                fontSize={"48px"}
-                fontWeight={800}
-                padding={0}
-                margin={0}
-              >
-                {accuracy}
-              </Typography>
 
-              <Typography variant="p" fontSize={"20px"}>
-                test type
-              </Typography>
-              <Typography variant="p" fontSize={"20px"} fontWeight={700}>
-                time {testTime}
-              </Typography>
-              <Typography variant="p" fontSize={"20px"} fontWeight={700}>
-                english words
-              </Typography>
-            </Stack>
-          </Grid>
-          <Grid item xs={12} md={10} alignItems={"center"} justifyContent={"center"}>
-            <ResponsiveContainer height="95%">
-              <LineChart
-                data={speedArray}
-                margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
-                
-              >
-                <Line type="monotone" dataKey="wpm" stroke="orange" />
-                <CartesianGrid stroke="#424242" />
-                <XAxis dataKey="time" style={{ fill: "#787575" }}>
-                  <Label
-                    value="Time"
-                    position="bottom"
-                    offset={0}
-                    style={{ fill: "#ccc" }}
-                  ></Label>
-                </XAxis>
-                <YAxis style={{ fill: "#787575" }}>
-                  <Label
-                    value="Words Per Minute"
-                    angle={-90}
-                    position="insideLeft"
-                    style={{ textAnchor: "middle", fill: "white" }}
-                  />
-                </YAxis>
-                <Tooltip content={<CustomTooltip />} />
-              </LineChart>
-            </ResponsiveContainer>
-          </Grid>
+
+        <Grid item xs={12} md={3}>
+          <Stack
+            justifyContent="center"
+            alignItems={{ xs: "center", md: "flex-start" }}
+            mt={2}
+            ml={{ xs: 0, md: 2 }}
+            
+            gap={1}
+            textAlign={{ xs: "center", md: "left" }}
+          >
+            <Typography variant='p' fontSize="24px">wpm</Typography>
+            <Typography variant='p' fontSize="48px" fontWeight={800}>{speed}</Typography>
+
+            <Typography variant='p' fontSize="24px">acc</Typography>
+            <Typography variant='p' fontSize="48px" fontWeight={800}>{accuracy}</Typography>
+
+            <Typography variant='p' fontSize="20px">test type</Typography>
+            <Typography variant='p' fontSize="20px" fontWeight={700}>time {testTime}</Typography>
+            <Typography variant='p' fontSize="20px" fontWeight={700}>english words</Typography>
+          </Stack>
+        </Grid>
+
+
+        <Grid
+          item
+          xs={12}
+          md={8}
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+        >
+          <ResponsiveContainer height="95%">
+            <LineChart
+              data={speedArray}
+              margin={{ top: 20, right: 20, left: 0, bottom: 20 }}
+            >
+              <Line type="monotone" dataKey="wpm" stroke="orange" />
+              <CartesianGrid stroke="#424242" />
+              <XAxis dataKey="time" style={{ fill: "#787575" }}>
+                <Label
+                  value="Time"
+                  position="bottom"
+                  style={{ fill: "#ccc" }}
+                />
+              </XAxis>
+              <YAxis style={{ fill: "#787575" }}>
+                <Label
+                  value="Words Per Minute"
+                  angle={-90}
+                  position="insideLeft"
+                  style={{ fill: "white", textAnchor: "middle" }}
+                />
+              </YAxis>
+              <Tooltip content={<CustomTooltip />} />
+            </LineChart>
+          </ResponsiveContainer>
+        </Grid>
+
         </Grid>
         <div className="next-test">
           <span className="next-test-text" onClick={() => {

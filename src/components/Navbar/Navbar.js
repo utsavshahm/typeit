@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import {Box, IconButton, Stack, Tooltip} from "@mui/material"
+import {Box, IconButton, MenuItem, Select, Stack, Tooltip, useMediaQuery} from "@mui/material"
 import KeyboardIcon from '@mui/icons-material/Keyboard';
+import MenuIcon from '@mui/icons-material/Menu';
+import CloseIcon from '@mui/icons-material/Close';
 import InfoIcon from '@mui/icons-material/Info';
 import Person2OutlinedIcon from '@mui/icons-material/Person2Outlined';
 import logo from '../../img/typeitLogo.png'
@@ -15,6 +17,9 @@ function Navbar() {
     // check if the user is already logged in 
   const [isUser, setUser] = useState(false);
   const [username, setUsername] = useState("");
+  const isMobile = useMediaQuery("(max-width:768px)");
+const [menuOpen, setMenuOpen] = useState(false);
+
 
     useEffect(() => {
         const token = window.localStorage.token;
@@ -27,17 +32,37 @@ function Navbar() {
 
   return (
     <>
-      <Stack
-        direction={"row"}
-        justifyContent={"space-around"}
-        padding={5}
-        width={"100vw"}
-      >
-        <Stack direction={"row"} gap={2} alignItems={"center"}>
-          <Box>
-            <img src={logo} alt="logo" height={60} width={200} />
-          </Box>
+<Stack
+  direction={"row"}
+  justifyContent={"space-around"}
+  alignItems={"center"}
+  padding={2}
+  width={"100vw"}
+  bgcolor="transparent"
+>
+  {/* Logo */}
+  <Box>
+    <img src={logo} alt="logo" height={50} width={150} />
+  </Box>
 
+  {isMobile ? (
+    <>
+      <IconButton onClick={() => setMenuOpen(!menuOpen)} className='nav-icon'>
+        {menuOpen ? <CloseIcon /> : <MenuIcon />}
+      </IconButton>
+
+      {menuOpen && (
+        <Stack
+          direction={"column"}
+          gap={1}
+          position="absolute"
+          top={70}
+          right={20}
+          bgcolor="rgb(0 0 0 / 85%)"
+          borderRadius={2}
+          padding={2}
+          zIndex={1000}
+        >
           <Tooltip title="Keyboard" arrow>
             <IconButton
               sx={{
@@ -45,10 +70,7 @@ function Navbar() {
                 "&:hover": { color: "white" },
                 transition: "all 0.3s",
               }}
-              onClick={() => {
-                window.location.assign('/');
-              }}
-              
+              onClick={() => window.location.assign("/")}
             >
               <KeyboardIcon />
             </IconButton>
@@ -61,35 +83,80 @@ function Navbar() {
                 "&:hover": { color: "white" },
                 transition: "all 0.3s",
               }}
-              onClick={() => {
-                navigate("/info");
-              }}
+              onClick={() => navigate("/info")}
             >
               <InfoIcon />
             </IconButton>
           </Tooltip>
-        </Stack>
-        <Stack direction={"row"} gap={2} alignItems={"center"}>
+
           <Tooltip title="Account" arrow>
             {isUser ? (
               <AccountTile setUser={setUser} username={username} setUsername={setUsername} />
             ) : (
               <IconButton
                 sx={{
-                  color: "#fffa",
-                  "&:hover": { color: "white" },
-                  transition: "all 0.3s",
-                }}
-                onClick={() => {
-                  navigate("/login");
-                }}
+                color: "#fffa",
+                "&:hover": { color: "white" },
+                transition: "all 0.3s",
+              }}
+                onClick={() => navigate("/login")}
               >
                 <Person2OutlinedIcon />
               </IconButton>
             )}
           </Tooltip>
         </Stack>
-      </Stack>
+      )}
+    </>
+  ) : (
+    // Desktop view
+    <Stack direction={"row"} gap={2} alignItems={"center"}>
+      <Tooltip title="Keyboard" arrow>
+        <IconButton
+          sx={{
+                color: "#fffa",
+                "&:hover": { color: "white" },
+                transition: "all 0.3s",
+              }}
+          onClick={() => window.location.assign("/")}
+        >
+          <KeyboardIcon />
+        </IconButton>
+      </Tooltip>
+
+      <Tooltip title="Info" arrow>
+        <IconButton
+          sx={{
+                color: "#fffa",
+                "&:hover": { color: "white" },
+                transition: "all 0.3s",
+              }}
+          onClick={() => navigate("/info")}
+        >
+          <InfoIcon />
+        </IconButton>
+      </Tooltip>
+
+      <Tooltip title="Account" arrow>
+        {isUser ? (
+          <AccountTile setUser={setUser} username={username} setUsername={setUsername} />
+        ) : (
+          <IconButton
+            onClick={() => navigate("/login")}
+            sx={{
+                color: "#fffa",
+                "&:hover": { color: "white" },
+                transition: "all 0.3s",
+              }}
+          >
+            <Person2OutlinedIcon />
+          </IconButton>
+        )}
+      </Tooltip>
+    </Stack>
+  )}
+</Stack>
+
     </>
   );
 }
