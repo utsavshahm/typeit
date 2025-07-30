@@ -7,28 +7,20 @@ import InfoIcon from '@mui/icons-material/Info';
 import Person2OutlinedIcon from '@mui/icons-material/Person2Outlined';
 import logo from '../../img/typeitLogo.png'
 import { useNavigate } from 'react-router-dom';
+import { useSelector } from "react-redux";
 
 import './navbar.css'
 import { Logout } from '@mui/icons-material';
+import { useDispatch } from 'react-redux';
+import { logoutUser } from '../../redux/auth_redux/authAction';
 
 function Navbar() {
     const navigate = useNavigate();
 
     // check if the user is already logged in 
-  const [isUser, setUser] = useState(false);
-  const [username, setUsername] = useState("");
+  const {isUser, username} = useSelector(state => state.auth)
   const isMobile = useMediaQuery("(max-width:768px)");
 const [menuOpen, setMenuOpen] = useState(false);
-
-
-    useEffect(() => {
-        const token = window.localStorage.token;
-
-        if (token) {
-          setUsername(window.localStorage.username);
-            setUser(true);
-        }
-    }, [])
 
   return (
     <>
@@ -91,7 +83,7 @@ const [menuOpen, setMenuOpen] = useState(false);
 
           <Tooltip title="Account" arrow>
             {isUser ? (
-              <AccountTile setUser={setUser} username={username} setUsername={setUsername} />
+              <AccountTile username={username} />
             ) : (
               <IconButton
                 sx={{
@@ -139,7 +131,7 @@ const [menuOpen, setMenuOpen] = useState(false);
 
       <Tooltip title="Account" arrow>
         {isUser ? (
-          <AccountTile setUser={setUser} username={username} setUsername={setUsername} />
+          <AccountTile username={username}  />
         ) : (
           <IconButton
             onClick={() => navigate("/login")}
@@ -164,17 +156,18 @@ const [menuOpen, setMenuOpen] = useState(false);
 export default Navbar;
 
 function AccountTile(props) {
-  const { setUser, username, setUsername } = props;
+  const { username } = props;
   const navigate = useNavigate();
+  const dispatch = useDispatch(); 
 
   const handleLogout = () => {
     // route to main page and logout the user
     // delete the token from localstorage
+
     if (window) {
+      dispatch(logoutUser())
       window.localStorage.removeItem("token"); 
       window.localStorage.removeItem("username")
-      setUsername("")
-      setUser(false);
     }
     window.location.assign('/')
 

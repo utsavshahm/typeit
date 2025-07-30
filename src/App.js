@@ -1,4 +1,4 @@
-import { Provider } from "react-redux";
+import { Provider, useDispatch } from "react-redux";
 import Home from "./pages/Home/Home";
 import store from "./redux/store";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
@@ -10,18 +10,19 @@ import ShowResult from "./pages/Result/ShowResult";
 import Navbar from "./components/Navbar/Navbar";
 import Footer from "./components/Footer/Footer";
 import { Box } from "@mui/material";
+import { loginUser } from "./redux/auth_redux/authAction";
 
 function App() {
-  const [result, isResult] = useState(false);
+  const dispatch = useDispatch();
   useEffect(() => {
-    if (!localStorage.getItem("testTaken")) {
-      isResult(true);
+    const token = localStorage.getItem("token");
+    const username = localStorage.getItem("username");
+    if (token && username) {
+      dispatch(loginUser(username));
     }
   }, []);
 
-
   return (
-    <Provider store={store}>
         <div className="App">
           <Router>
             <Box
@@ -42,7 +43,6 @@ function App() {
             </Box>
           </Router>
         </div>
-    </Provider>
   );
 }
 

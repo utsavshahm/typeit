@@ -5,6 +5,8 @@ import LoginIcon from "@mui/icons-material/Login";
 import { useForm } from 'react-hook-form';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { loginUser, logoutUser } from '../../redux/auth_redux/authAction';
 import './account.css'
 
 function Login(props) {
@@ -17,7 +19,7 @@ function Login(props) {
       type: "",
     };
   const [snack, setSnack] = useState(defaultSnack);
-  
+  const dispatch = useDispatch(); 
   const submitHandler = handleSubmit(async (data) => {
         
         try {
@@ -32,8 +34,10 @@ function Login(props) {
             setSnack({ show: true, message: response.data.msg, type: "success" });
 
             if (window) {
+              
               window.localStorage.setItem('token', response.data.token); 
               window.localStorage.setItem('username', response.data.credentials.username);
+              dispatch(loginUser(response.data.credentials.username));
               setTimeout(() => {
                 navigate('/');
               }, 3000);
