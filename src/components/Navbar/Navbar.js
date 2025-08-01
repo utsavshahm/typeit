@@ -39,7 +39,7 @@ const [menuOpen, setMenuOpen] = useState(false);
 
   {isMobile ? (
     <>
-      <IconButton onClick={() => setMenuOpen(!menuOpen)} className='nav-icon'>
+      <IconButton onClick={() => setMenuOpen(!menuOpen)} className='nav-icon' sx={{color : 'white'}}>
         {menuOpen ? <CloseIcon /> : <MenuIcon />}
       </IconButton>
 
